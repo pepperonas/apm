@@ -20,19 +20,25 @@ package io.celox;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -69,41 +75,79 @@ public class Main extends Application {
         lOutput.setWrapText(true);
 
         Button btnGetPermissions = new Button("GET PERMISSIONS");
-        btnGetPermissions.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    Prefs.setLastPackageName(tfPackageName.getText());
+        btnGetPermissions.setOnAction(event -> {
+            try {
+                Prefs.setLastPackageName(tfPackageName.getText());
 
-                    String[] lines = runProcess("adb shell dumpsys package " + tfPackageName.getText()).split("\n");
-                    StringBuilder output = new StringBuilder();
-                    boolean writeOutput = false;
-                    for (String line : lines) {
-                        if (line.contains("requested permissions:") && !writeOutput) {
-                            writeOutput = true;
-                        }
-                        if (line.contains("User 0:")) {
-                            writeOutput = false;
-                        }
-                        System.out.println(line);
-                        if (writeOutput) {
-                            output.append(line).append("\n");
-                        }
-                        lOutput.setText(output.toString());
+                String[] lines = runProcess("adb shell dumpsys package " + tfPackageName.getText()).split("\n");
+                StringBuilder output = new StringBuilder();
+                boolean writeOutput = false;
+                for (String line : lines) {
+                    if (line.contains("requested permissions:") && !writeOutput) {
+                        writeOutput = true;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if (line.contains("mSkippingApks:")) {
+                        writeOutput = false;
+                    }
+                    System.out.println(line);
+                    if (writeOutput) {
+                        output.append(line).append("\n");
+                    }
+                    lOutput.setText(output.toString());
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
-        VBox vBox = new VBox(5);
-        vBox.getChildren().addAll(tfPackageName, btnGetPermissions, lOutput);
+
+        List<String> permissions = new ArrayList<>();
+        Field[] fields = Manifest.permission.class.getFields();
+        System.out.println(fields.length);
+        for (Field field : fields) {
+            String permission = "android.permission." + field.getName();
+            permissions.add(permission);
+            System.out.println(permission);
+        }
+
+
+        ObservableList<String> data = FXCollections.observableList(permissions);
+        final ChoiceBox<String> choiceBoxPermissions = new ChoiceBox<>(data);
+        choiceBoxPermissions.getSelectionModel().selectFirst();
+
+        VBox vBoxLeft = new VBox(5);
+        vBoxLeft.getChildren().addAll(tfPackageName, btnGetPermissions, lOutput);
+        BorderPane borderPane = new BorderPane();
+        borderPane.setLeft(vBoxLeft);
+
+        Button btnGrantPermission = new Button("GRANT PERMISSION");
+        btnGrantPermission.setOnAction(event -> {
+            try {
+                runProcess("adb shell pm grant " + tfPackageName.getText() + " " + choiceBoxPermissions.getValue());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Button btnRevokePermission = new Button("REVOKE PERMISSION");
+        btnRevokePermission.setOnAction(event -> {
+            try {
+                runProcess("adb shell pm revoke " + tfPackageName.getText() + " " + choiceBoxPermissions.getValue());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        HBox hBoxButtonsRight = new HBox(5);
+        hBoxButtonsRight.getChildren().addAll(btnGrantPermission, btnRevokePermission);
+
+        VBox vBoxRight = new VBox(5);
+        vBoxRight.getChildren().addAll(choiceBoxPermissions, hBoxButtonsRight);
+        borderPane.setRight(vBoxRight);
 
         // layout the scene.
         final StackPane background = new StackPane();
         background.setStyle("-fx-background-color: cornsilk;");
-        final Scene scene = new Scene(new Group(background, vBox), 800, 600);
+        final Scene scene = new Scene(new Group(background, borderPane), 800, 600);
         background.prefHeightProperty().bind(scene.heightProperty());
         background.prefWidthProperty().bind(scene.widthProperty());
         stage.setScene(scene);
