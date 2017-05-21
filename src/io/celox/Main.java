@@ -126,7 +126,10 @@ public class Main extends Application {
                             || line.isEmpty()
                             || line.equals("package:android")
                             || line.equals("package:x.abcd")
-                            || line.contains("package:com.android.")) {
+                            || line.contains("package:com.android.")
+                            || line.contains("* daemon not running. starting it now at")
+                            || line.contains("* daemon started successfully *")
+                            ) {
                         continue;
                     }
                     String pkg = line.replace("package:", "");
