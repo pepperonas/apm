@@ -262,16 +262,49 @@ public class Main extends Application {
             }
         });
 
-        tfPackageName.textProperty().addListener((observable, oldValue, newValue) -> {
-            btnGrantPermission.setDisable(tfPackageName.getText().isEmpty());
-            btnRevokePermission.setDisable(tfPackageName.getText().isEmpty());
-        });
-
         HBox hBoxButtonsRight = new HBox(5);
         hBoxButtonsRight.getChildren().addAll(btnGrantPermission, btnRevokePermission);
 
+
+        Button btnUninstallApp = new Button("UNINSTALL");
+        btnUninstallApp.setDisable(tfPackageName.getText().isEmpty());
+        btnUninstallApp.setOnAction(event -> {
+            try {
+                runProcess("adb shell pm uninstall -k " + tfPackageName.getText());
+
+                listView.getSelectionModel().clearSelection();
+                listView.getItems().remove(tfPackageName.getText());
+
+                tfPackageName.setText("");
+                Prefs.setLastPackageName("");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Button btnUnused = new Button("---");
+        btnUnused.setDisable(tfPackageName.getText().isEmpty());
+        btnUnused.setOnAction(event -> {
+            try {
+                runProcess("adb devices");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+
+        HBox hBoxButtonsRight2 = new HBox(5);
+        hBoxButtonsRight2.getChildren().addAll(btnUninstallApp, btnUnused);
+
+        tfPackageName.textProperty().addListener((observable, oldValue, newValue) -> {
+            btnGrantPermission.setDisable(tfPackageName.getText().isEmpty());
+            btnRevokePermission.setDisable(tfPackageName.getText().isEmpty());
+            btnUninstallApp.setDisable(tfPackageName.getText().isEmpty());
+            btnUnused.setDisable(tfPackageName.getText().isEmpty());
+        });
+
         VBox vBoxRight = new VBox(5);
-        vBoxRight.getChildren().addAll(choiceBoxPermissions, hBoxButtonsRight);
+        vBoxRight.getChildren().addAll(choiceBoxPermissions, hBoxButtonsRight, hBoxButtonsRight2);
         return vBoxRight;
     }
 
