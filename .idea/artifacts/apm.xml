@@ -1,0 +1,31 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" build-on-make="true" name="apm">
+    <output-path>$PROJECT_DIR$/out/artifacts/apm</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="io.celox.Main" />
+        <option name="convertCss2Bin" value="true" />
+        <option name="description" value="A permission manager for Android." />
+        <option name="height" value="600" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="icons">
+          <JavaFxApplicationIcons>
+            <option name="linuxIcon" value="$PROJECT_DIR$/src/res/web_hi_res_512.png" />
+            <option name="macIcon" value="$PROJECT_DIR$/src/res/web_hi_res_512.png.icns" />
+            <option name="windowsIcon" value="$PROJECT_DIR$/src/res/web_hi_res_512.png.ico" />
+          </JavaFxApplicationIcons>
+        </option>
+        <option name="nativeBundle" value="all" />
+        <option name="title" value="Android Permission Manager" />
+        <option name="vendor" value="celox" />
+        <option name="version" value="0.0.1" />
+        <option name="width" value="800" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="apm.jar">
+        <element id="module-output" name="apm" />
+      </element>
+    </root>
+  </artifact>
+</component>
