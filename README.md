@@ -1,6 +1,6 @@
 # apm - Android Permission Manager
 
-This app allows you setting app permission in Android. It allows you to test apps faster and get bypass runtime-permissions.
+This app provides a GUI for common ADB-commands. 
 
 
 ## Requirements
@@ -9,11 +9,24 @@ You will need adb (Android Debugging Bridge) working on your machine. To check i
 the command prompt / Terminal and run `abd devices`. 
 
 
+## Features
+
+* List installed packages
+* List an app's required permissions
+* Grant and revoke runtime permissions
+* Uninstall an app without typing any key
+
+
 ## How to use
 
 Start this tool and set app permissions without a hassle. Just follow the GUI, which should be self-explanatory.
 
 To get an overview of the Android Permission Model, check the [docs](https://developer.android.com/reference/android/Manifest.permission.html).
+
+
+## Screenshots
+
+![SC001](images/screenshot.png?raw=true "GUI")
 
 
 ## Contact
